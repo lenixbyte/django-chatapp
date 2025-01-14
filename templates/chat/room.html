@@ -1,0 +1,125 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+{% load chat_filters %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <button class="icon-button toggle-sidebar" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-info">
+            <span class="username">{{ other_user }}</span>
+            <span class="user-status">
+                {% if online %}
+                    <span class="status-text online">Online</span>
+                {% else %}
+                    <span class="status-text moment-fromnow" 
+                          data-timestamp="{{ last_seen }}" 
+                          data-server-now="{{ current_time|date:'c' }}">
+                        Last seen {{ last_seen }}
+                    </span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-button" disabled title="Video Call">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="icon-button" disabled title="Voice Call">
+                <i class="fas fa-phone"></i>
+            </button>
+            <div class="user-avatar">
+                {% if room.get_other_participant.profile_image %}
+                    <img src="{{ room.get_other_participant.profile_image.url }}" alt="Profile">
+                {% else %}
+                    <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <button class="icon-button" title="More Options">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="messagesContainer" class="messages-container" data-room-id="{{ room.id }}">
+        {% for message in messages %}
+            <div class="message {% if message.sender == request.user.username %}sent{% else %}received{% endif %} {% if message.message == '👍' %}thumbs-up-message{% endif %}" 
+                 data-message-id="{{ message.id }}">
+                {% if message.message == '👍' %}
+                    <div class="message-content large-thumbs-up">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                {% else %}
+                    <div class="message-content">
+                        {{ message.message }}
+                    </div>
+                {% endif %}
+                <div class="message-info">
+                    <span class="time">{{ message.timestamp|smart_time }}</span>
+                    {% if message.sender == request.user.username %}
+                        <span class="message-status {% if message.is_read %}read{% elif message.is_delivered %}delivered{% else %}sent{% endif %}">
+                            {% if message.is_read %}
+                                <i class="fas fa-check-double"></i>
+                            {% elif message.is_delivered %}
+                                <i class="fas fa-check"></i>
+                            {% else %}
+                                <i class="fas fa-clock"></i>
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="typingIndicator" class="typing-indicator"></div>
+
+    <div class="chat-input-container">
+        <form id="chatForm" class="chat-form">
+            <button type="button" class="icon-button" title="Add Attachment">
+                <i class="fas fa-plus"></i>
+            </button>
+            <input type="text" id="messageInput" class="message-input" placeholder="Type a message..." autocomplete="off">
+            <button type="submit" class="send-button" title="Send Message">
+                <i class="fas fa-paper-plane send-icon"></i>
+                <i class="fas fa-thumbs-up like-icon"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/chat.js' %}"></script>
+<script>
+    const roomName = document.getElementById('messagesContainer').dataset.roomId;
+    const username = "{{ request.user.username }}";
+    
+    // Function to scroll to bottom of messages
+    function scrollToBottom() {
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Scroll to bottom when page loads
+    window.addEventListener('load', scrollToBottom);
+    
+    if (roomName && username) {
+        const chat = new ChatManager(roomName, username);
+        
+        // Add observer to watch for new messages and scroll to bottom
+        const messagesContainer = document.getElementById('messagesContainer');
+        const observer = new MutationObserver(scrollToBottom);
+        observer.observe(messagesContainer, { childList: true });
+    } else {
+        console.error('Missing required data:', { roomName, username });
+    }
+</script>
+{% endblock %} 

@@ -1,0 +1,78 @@
+{% extends 'chat/base.html' %}
+
+{% block content %}
+<div class="chat-container">
+    {% if user.is_authenticated %}
+    <!-- Toggle sidebar button for mobile -->
+    <div class="chat-header">
+        <button class="icon-button toggle-sidebar" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-info">
+            <span class="username">Welcome, {{ user.username }}</span>
+        </div>
+    </div>
+
+    <!-- Empty chat area with instructions -->
+    <div class="messages-container">
+        <div class="empty-chat-message">
+            <i class="fas fa-comments"></i>
+            <p>Select a user to start chatting</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-preview {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 16px;
+    border-bottom: 1px solid var(--secondary-color);
+    transition: background-color 0.2s;
+}
+
+.chat-preview:hover {
+    background-color: var(--secondary-color);
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.chat-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.username {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.last-message {
+    margin: 4px 0 0 0;
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--light-text);
+    border: 2px solid white;
+}
+
+.status-dot.online {
+    background: var(--success-color);
+}
+</style>
+{% endblock %} 

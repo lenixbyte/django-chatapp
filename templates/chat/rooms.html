@@ -1,0 +1,77 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+{% load chat_filters %}
+
+{% block content %}
+<div class="chat-container">
+    {% if user.is_authenticated %}
+    <!-- Toggle sidebar button for mobile -->
+    <div class="chat-header">
+        <button class="icon-button toggle-sidebar" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-info">
+            <span class="username">Welcome, {{ user.username }}</span>
+        </div>
+        <a href="{% url 'chat:logout' %}" class="logout-link">
+            <button class="icon-button" id="logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </a>
+    </div>
+
+    <!-- Empty chat area with instructions -->
+    <div class="messages-container">
+        <div class="empty-chat-message">
+            <i class="fas fa-comments"></i>
+            <p>Select a user to start chatting</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar_content %}
+<div class="rooms-sidebar">
+    <div class="rooms-sidebar-header">
+        <h1 class="rooms-title">Users</h1>
+        <button class="rooms-close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="rooms-user-list">
+        {% regroup users|dictsortreversed:"chat_status.is_online" by chat_status.is_online as user_groups %}
+        {% for group in user_groups %}
+            <div class="rooms-group">
+                <div class="rooms-group-header">
+                    {% if group.grouper %}
+                        <h3 class="rooms-group-title">Online</h3>
+                    {% else %}
+                        <h3 class="rooms-group-title">Offline</h3>
+                    {% endif %}
+                </div>
+                <div class="rooms-group-users">
+                    {% for other_user in group.list %}
+                        {% if other_user != user %}
+                            <a href="{% url 'chat:room' other_user.id %}" class="rooms-user-card {% if group.grouper %}rooms-user-online{% else %}rooms-user-offline{% endif %}">
+                                <div class="rooms-user-avatar">
+                                    {% if other_user.profile_image %}
+                                        <img src="{{ other_user.profile_image.url }}" alt="Profile" class="rooms-avatar-img">
+                                    {% else %}
+                                        <i class="fas fa-user rooms-avatar-icon"></i>
+                                    {% endif %}
+                                    <span class="rooms-status-indicator {% if other_user.chat_status.is_online %}rooms-status-online{% endif %}"></span>
+                                </div>
+                                <div class="rooms-user-info">
+                                    <h2 class="rooms-username">{{ other_user.username }}</h2>
+                                    <p class="rooms-user-message">Click to start chatting</p>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

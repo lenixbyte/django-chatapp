@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chat App</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0084ff">
+    <link rel="icon" type="image/png" href="{% static 'images/icon-192x192.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/icon-192x192.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-wrapper">
+        {% if user.is_authenticated %}
+        <div id="sidebar" class="sidebar">
+            {% block sidebar_content %}
+            <div class="sidebar-header">
+                <h1>Chats</h1>
+                <a href="{% url 'chat:logout' %}" class="logout-link">
+                    <button class="icon-button" id="logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </a>
+                <button class="icon-button" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-list">
+                {% for chat in chat_rooms %}
+                    <a href="{% url 'chat:room' chat.other_user.id %}" 
+                       class="chat-preview {% if chat.room.id == current_room_id %}active{% endif %}">
+                        <div class="rooms-user-avatar">
+                            {% if chat.other_user.profile_image %}
+                                <img src="{{ chat.other_user.profile_image.url }}" alt="Profile" class="rooms-avatar-img">
+                            {% else %}
+                                <i class="fas fa-user rooms-avatar-icon"></i>
+                            {% endif %}
+                            <span class="rooms-status-indicator {% if chat.other_user.chat_status.is_online %}rooms-status-online{% endif %}"></span>
+                        </div>
+                        <div class="rooms-user-info">
+                            <h2 class="rooms-username">{{ chat.other_user.username }}</h2>
+                            <p class="rooms-user-message">
+                                {% if chat.last_message %}
+                                    {{ chat.last_message.content|truncatechars:30 }}
+                                {% else %}
+                                    No messages yet
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if chat.unread_count > 0 %}
+                            <span class="unread-badge">{{ chat.unread_count }}</span>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+            {% endblock sidebar_content %}
+        </div>
+        {% endif %}
+        
+        <div class="main-content {% if not user.is_authenticated %}full-width{% endif %}">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        function updateMomentTimes() {
+            document.querySelectorAll('.moment-fromnow').forEach(element => {
+                const timestamp = element.getAttribute('data-timestamp');
+                const serverNow = element.getAttribute('data-server-now');
+                
+                // Calculate the difference between server time and message time
+                const serverTimeDiff = moment(serverNow).diff(moment(timestamp));
+                
+                // Apply that same difference from current browser time
+                const relativeTime = moment().subtract(serverTimeDiff, 'milliseconds').fromNow();
+                
+                element.textContent = relativeTime;
+            });
+        }
+    
+        // Update times when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateMomentTimes();
+            // Update times every minute
+            setInterval(updateMomentTimes, 60000);
+        });
+    </script>
+</body>
+</html> 

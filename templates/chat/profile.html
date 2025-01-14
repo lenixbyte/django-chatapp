@@ -1,0 +1,301 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="app-container">
+    <div class="app-header">
+        <div class="header-title">
+            <h1>Profile</h1>
+        </div>
+        <div class="header-actions">
+            <button class="icon-button" title="Edit Profile">
+                <i class="fas fa-edit fa-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" alt="Profile">
+                {% else %}
+                    <i class="fas fa-user fa-3x"></i>
+                {% endif %}
+                <button class="change-avatar-button">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+            <h2 class="profile-name">{{ user.username }}</h2>
+            <p class="profile-status">
+                {% if user.chat_status.is_online %}
+                    <span class="status-dot online"></span> Online
+                {% else %}
+                    <span class="status-dot"></span> Offline
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="profile-sections">
+            <div class="profile-section">
+                <div class="section-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Personal Info</h3>
+                </div>
+                <div class="section-content">
+                    <div class="info-item">
+                        <span class="info-label">Username</span>
+                        <span class="info-value">{{ user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Joined</span>
+                        <span class="info-value">{{ user.date_joined|date }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="section-header">
+                    <i class="fas fa-bell"></i>
+                    <h3>Notifications</h3>
+                </div>
+                <div class="section-content">
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Message Notifications</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Online Status</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="section-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Privacy</h3>
+                </div>
+                <div class="section-content">
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Show Last Seen</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Read Receipts</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <button class="action-button danger">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.change-avatar-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.change-avatar-button:hover {
+    transform: scale(1.1);
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.profile-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--light-text);
+    margin: 0;
+}
+
+.profile-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.profile-section {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.section-header i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--secondary-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--light-text);
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    cursor: pointer;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    background: var(--secondary-color);
+    border-radius: 13px;
+    transition: 0.4s;
+}
+
+.toggle-slider:before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked + .toggle-slider {
+    background: var(--primary-color);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.profile-actions {
+    margin-top: 20px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-button.danger {
+    background: var(--error-color);
+    color: white;
+}
+
+.action-button:hover {
+    transform: scale(1.05);
+}
+</style>
+{% endblock %} 

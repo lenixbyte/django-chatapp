@@ -1,0 +1,5 @@
+Archive.zip
+db.sqlite3
+__pycache__/
+lambda_functions.py
+test_lambda.py
